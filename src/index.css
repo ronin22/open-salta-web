@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%; /* Light gray */
+    --foreground: 210 10% 23%; /* Dark gray-blue */
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 10% 23%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 10% 23%;
+
+    --primary: 25 95% 53%; /* Vibrant Orange (Mischa-like accent) */
+    --primary-foreground: 0 0% 100%; /* White */
+
+    --secondary: 205 90% 50%; /* Vibrant Blue (Mischa-like accent) */
+    --secondary-foreground: 0 0% 100%; /* White */
+
+    --muted: 210 30% 96%;
+    --muted-foreground: 210 10% 45%;
+
+    --accent: 210 30% 90%;
+    --accent-foreground: 210 10% 23%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 25 95% 53%; /* Orange for focus rings */
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 220 18% 12%; /* Very dark gray-blue (Mischa-like dark theme) */
+    --foreground: 210 20% 90%; /* Light gray for text */
+
+    --card: 220 18% 15%; /* Slightly lighter dark for cards */
+    --card-foreground: 210 20% 90%;
+
+    --popover: 220 18% 10%;
+    --popover-foreground: 210 20% 90%;
+
+    --primary: 25 95% 53%; /* Vibrant Orange */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 205 90% 55%; /* Vibrant Blue */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 15% 25%;
+    --muted-foreground: 210 15% 65%;
+
+    --accent: 220 15% 25%;
+    --accent-foreground: 210 20% 90%;
+
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 15% 25%;
+    --input: 220 15% 25%;
+    --ring: 25 95% 53%; /* Orange for focus rings */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-orange-400;
+}
+
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.05); /* Lighter for dark theme */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .glassmorphism {
+  background: rgba(10, 10, 20, 0.2); /* Darker, more subtle for dark theme */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Custom scrollbar for a more modern look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--background) / 0.5);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.7);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
