@@ -8,7 +8,7 @@ const fadeIn = (delay = 0, y = 20) => ({
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay, ease: "easeOut" } },
 });
 
-const HeroSection = ({ content }) => {
+const HeroSection = () => {
   const handleScrollToInscription = (e) => {
     e.preventDefault();
     const targetElement = document.getElementById('inscripcion');
@@ -32,13 +32,13 @@ const HeroSection = ({ content }) => {
           className="text-5xl md:text-7xl font-black mb-6 text-white drop-shadow-lg uppercase tracking-wider"
           variants={fadeIn(0.2, 30)}
         >
-          {content.tournament_name?.value || "OPEN SALTA"} <span className="text-primary">{content.tournament_highlight?.value || ""}</span>
+          OPEN SALTA <span className="text-primary">2025</span>
         </motion.h1>
         <motion.p 
           className="text-xl md:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto"
           variants={fadeIn(0.4, 20)}
         >
-          {content.tournament_subtitle?.value || "Nueva edicion del clasico del NOA"}
+          Nueva edicion del clasico del NOA
         </motion.p>
         <motion.div variants={fadeIn(0.6)}>
           <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-6 text-lg font-semibold rounded-lg shadow-lg transform hover:scale-105 transition-transform">
