@@ -2,6 +2,7 @@ import React from 'react';
 import HeroSection from '@/components/home/HeroSection';
 import RegistrationSection from "@/components/home/RegistrationSection";
 import EventInfoSection from "@/components/home/EventInfoSection";
+import SponsorsSection from "@/components/home/SponsorsSection";
 
 const HomePage = () => {
 
@@ -10,8 +11,8 @@ const HomePage = () => {
       <HeroSection  />
       <RegistrationSection />
       <EventInfoSection  />
-      {/*<SponsorsSection  />
-      <GallerySection />*/}
+      <SponsorsSection  />
+      {/*<GallerySection />*/}
     </div>
   );
 };
