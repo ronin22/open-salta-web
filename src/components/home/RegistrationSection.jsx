@@ -40,7 +40,7 @@ const RegistrationCard = ({ title, description, linkTo, icon, buttonText, button
   </Card>
 );
 
-const RegistrationSection = ({ content }) => (
+const RegistrationSection = () => (
   <motion.section 
     id="inscripcion" 
     className="py-16 bg-card/70 rounded-xl shadow-xl glassmorphism"
@@ -53,16 +53,14 @@ const RegistrationSection = ({ content }) => (
         className="text-4xl md:text-5xl font-bold mb-4 gradient-text"
         variants={fadeIn(0.1)}
       >
-        {content.registration_title?.value || "Asociacion Salteña de Brazilian Jiu Jitsu"}
+        Asociacion Salteña de Brazilian Jiu Jitsu
       </motion.h2>
-      {content.registration_subtitle?.value && (
-        <motion.p 
+      <motion.p
           className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
           variants={fadeIn(0.2)}
         >
-          {content.registration_subtitle.value}
+          asdasdasd
         </motion.p>
-      )}
       <motion.div 
         className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-8"
         variants={staggerContainer(0.2)}
@@ -72,7 +70,7 @@ const RegistrationSection = ({ content }) => (
         <motion.div variants={fadeIn(0, 30)}>
           <RegistrationCard
             title="Inscripción Menores"
-            description={content.minors_registration_card_description?.value || "Para competidores hasta 17 años."}
+            description={"Para competidores hasta 17 años."}
             linkTo="/affidavit/minors"
             icon={<Users className="h-12 w-12 mx-auto mb-4 text-secondary" />}
             buttonText="Inscribir Menor"
@@ -82,7 +80,7 @@ const RegistrationSection = ({ content }) => (
         <motion.div variants={fadeIn(0, 30)}>
           <RegistrationCard
             title="Inscripción Adultos"
-            description={content.adults_registration_card_description?.value || "Categorías Adultos y Masters."}
+            description={"Categorías Adultos y Masters."}
             linkTo="/affidavit/adults"
             icon={<Shield className="h-12 w-12 mx-auto mb-4 text-primary" />}
             buttonText="Inscribir Adulto"
