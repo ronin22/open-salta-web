@@ -87,7 +87,7 @@ const AdminRegistrationsPage = () => {
       transition={{ duration: 0.5 }}
       className="container mx-auto py-8 px-4 md:px-0"
     >
-      <h1 className="text-4xl font-bold mb-8 gradient-text text-center">Panel de Administración</h1>
+      <h1 className="text-4xl font-bold mb-8  text-center">Panel de Administración</h1>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6 bg-background/70 backdrop-blur-md">

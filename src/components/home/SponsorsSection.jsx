@@ -61,7 +61,7 @@ const SponsorCard = ({ sponsor }) => (
 
 const SponsorsSection = ({ content, sponsors }) => (
   <motion.section id="sponsors" variants={fadeIn(0.4)} initial="hidden" animate="visible" className="py-12">
-    <h2 className="text-4xl font-semibold text-center mb-12 gradient-text flex items-center justify-center">
+    <h2 className="text-4xl font-semibold text-center mb-12  flex items-center justify-center">
       <Handshake className="mr-3 h-10 w-10 text-primary" /> {content.sponsors_title?.value || "Nos Auspician:"}
     </h2>
     {sponsors.length > 0 ? (

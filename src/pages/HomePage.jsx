@@ -1,6 +1,7 @@
 import React from 'react';
 import HeroSection from '@/components/home/HeroSection';
 import RegistrationSection from "@/components/home/RegistrationSection";
+import EventInfoSection from "@/components/home/EventInfoSection";
 
 const HomePage = () => {
 
@@ -8,8 +9,8 @@ const HomePage = () => {
     <div className="space-y-20 md:space-y-28">
       <HeroSection  />
       <RegistrationSection />
-      {/*<EventInfoSection  />
-      <SponsorsSection  />
+      <EventInfoSection  />
+      {/*<SponsorsSection  />
       <GallerySection />*/}
     </div>
   );

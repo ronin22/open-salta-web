@@ -399,7 +399,7 @@ const AdultsRegistrationPage = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-3">
             <UserCheck className="h-12 w-12 text-primary mr-3" />
-            <CardTitle className="text-3xl font-bold gradient-text">Inscripción para Adultos</CardTitle>
+            <CardTitle className="text-3xl font-bold ">Inscripción para Adultos</CardTitle>
           </div>
           <CardDescription className="text-muted-foreground">
             Completa tus datos personales para participar en el torneo.

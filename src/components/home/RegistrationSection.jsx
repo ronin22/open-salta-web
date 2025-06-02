@@ -50,17 +50,11 @@ const RegistrationSection = () => (
   >
     <div className="container mx-auto px-4 text-center">
       <motion.h2 
-        className="text-4xl md:text-5xl font-bold mb-4 gradient-text"
+        className="text-4xl md:text-5xl font-bold mb-4 "
         variants={fadeIn(0.1)}
       >
-        Asociacion Salteña de Brazilian Jiu Jitsu
+        Asociación Salteña de Brazilian Jiu Jitsu
       </motion.h2>
-      <motion.p
-          className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
-          variants={fadeIn(0.2)}
-        >
-          asdasdasd
-        </motion.p>
       <motion.div 
         className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-8"
         variants={staggerContainer(0.2)}

@@ -76,7 +76,7 @@
   }
 }
 
-.gradient-text {
+. {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-orange-400;
 }
 

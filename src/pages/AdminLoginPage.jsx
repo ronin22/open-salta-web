@@ -87,7 +87,7 @@ const AdminLoginPage = () => {
     >
       <Card className="w-full max-w-md glassmorphism shadow-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold gradient-text">Acceso Administrador</CardTitle>
+          <CardTitle className="text-3xl font-bold ">Acceso Administrador</CardTitle>
           <CardDescription className="text-muted-foreground">
             Ingresa tus credenciales para acceder al panel.
           </CardDescription>

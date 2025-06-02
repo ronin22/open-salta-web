@@ -61,7 +61,7 @@ const MinorsRegistrationPage = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-3">
              <FileTextIcon className="h-12 w-12 text-primary mr-3" />
-            <CardTitle className="text-3xl font-bold gradient-text">Declaración Jurada (Menores)</CardTitle>
+            <CardTitle className="text-3xl font-bold ">Declaración Jurada (Menores)</CardTitle>
           </div>
            <CardDescription className="text-muted-foreground">
             Por favor, lee atentamente la siguiente declaración jurada. Debe ser comprendida por el padre/madre/tutor.
@@ -85,7 +85,7 @@ const MinorsRegistrationPage = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-3">
             <UserPlus className="h-12 w-12 text-primary mr-3" />
-            <CardTitle className="text-3xl font-bold gradient-text">Inscripción para Menores de Edad</CardTitle>
+            <CardTitle className="text-3xl font-bold ">Inscripción para Menores de Edad</CardTitle>
           </div>
           <CardDescription className="text-muted-foreground">
             Completa los datos del competidor menor de edad y del padre/madre/tutor.

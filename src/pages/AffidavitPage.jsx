@@ -112,7 +112,7 @@ import React, { useState, useEffect } from 'react';
             <CardHeader className="text-center">
               <div className="flex justify-center items-center mb-4">
                 <FileText className="h-12 w-12 text-primary mr-3" />
-                <CardTitle className="text-3xl font-bold gradient-text">Declaración Jurada</CardTitle>
+                <CardTitle className="text-3xl font-bold ">Declaración Jurada</CardTitle>
               </div>
               <p className="text-muted-foreground">Por favor, lee atentamente y acepta los términos para continuar con la inscripción.</p>
             </CardHeader>

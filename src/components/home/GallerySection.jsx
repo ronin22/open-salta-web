@@ -33,7 +33,7 @@ const GalleryItem = ({ type, title, icon, imageUrl, videoUrl, altText }) => (
 
 const GallerySection = ({ content, galleryItems }) => (
   <motion.section id="gallery" variants={fadeIn(0.5)} initial="hidden" animate="visible" className="py-12">
-    <h2 className="text-4xl font-semibold text-center mb-12 gradient-text">{content.gallery_title?.value || "Ediciones Anteriores"}</h2>
+    <h2 className="text-4xl font-semibold text-center mb-12 ">{content.gallery_title?.value || "Ediciones Anteriores"}</h2>
     {galleryItems.length > 0 ? (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {galleryItems.map((item) => (

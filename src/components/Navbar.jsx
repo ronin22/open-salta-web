@@ -157,7 +157,7 @@ import React, { useState, useEffect } from 'react';
             <div className="flex items-center justify-between h-20">
               <Link to="/" className="flex items-center space-x-3 group">
                 <Swords className="h-10 w-10 text-primary group-hover:text-primary/80 transition-colors duration-300 transform group-hover:scale-110" />
-                <span className="text-2xl font-bold gradient-text group-hover:opacity-80 transition-opacity duration-300">
+                <span className="text-2xl font-bold  group-hover:opacity-80 transition-opacity duration-300">
                   {tournamentName}
                 </span>
               </Link>
