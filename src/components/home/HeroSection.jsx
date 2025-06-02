@@ -38,7 +38,7 @@ const HeroSection = () => {
           className="text-xl md:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto"
           variants={fadeIn(0.4, 20)}
         >
-          Nueva edicion del clasico del NOA
+          Nueva edición del clásico del NOA
         </motion.p>
         <motion.div variants={fadeIn(0.6)}>
           <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-6 text-lg font-semibold rounded-lg shadow-lg transform hover:scale-105 transition-transform">

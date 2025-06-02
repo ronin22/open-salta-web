@@ -1,37 +1,29 @@
-import React, {useState} from 'react';
-import {Banknote, CalendarDays, Info, Landmark as LandmarkIcon, MapPin} from 'lucide-react';
+import React from 'react';
+import {CalendarDays, Info, MapPin} from 'lucide-react';
 import {motion} from 'framer-motion';
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 
 const iconVariants = {
 	hover: {scale: 1.1, rotate: 5},
 	tap: {scale: 0.95}
 };
 
-const EventInfoSection = () => {
-	const [eventDetails, setEventDetails] = useState({
-		date: "28 de Junio de 2025",
-		location: "Complejo Nicolás Vitale, Barrio El Tribuno, Salta Capital",
-		description: "¡Prepárate para el torneo de Jiu-Jitsu más esperado del Norte Argentino! Dos días de pura adrenalina, técnica y camaradería. Contaremos con categorías para todas las edades y niveles de experiencia, desde cinturones blancos hasta los más experimentados cinturones negros.",
-		tournamentName: "Open Salta BJJ"
-	});
-
-	const InfoItem = ({icon: Icon, title, content}) => (
-		<motion.div
-			className="flex items-start space-x-4 p-6 bg-card/60 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-primary/30 transition-shadow duration-300"
-			whileHover="hover"
-			whileTap="tap"
-		>
-			<motion.div variants={iconVariants} className="text-primary">
-				<Icon size={32}/>
-			</motion.div>
-			<div>
-				<h3 className="text-xl font-semibold text-primary mb-1">{title}</h3>
-				<p className="text-muted-foreground leading-relaxed">{content}</p>
-			</div>
+const InfoItem = ({icon: Icon, title, content}) => (
+	<motion.div
+		className="flex items-start space-x-4 p-6 bg-card/60 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-primary/30 transition-shadow duration-300"
+		whileHover="hover"
+		whileTap="tap"
+	>
+		<motion.div variants={iconVariants} className="text-primary">
+			<Icon size={32}/>
 		</motion.div>
-	);
+		<div>
+			<h3 className="text-xl font-semibold text-primary mb-1">{title}</h3>
+			<p className="text-muted-foreground leading-relaxed">{content}</p>
+		</div>
+	</motion.div>
+);
 
+const EventInfoSection = () => {
 	return (
 		<section id="event-info" className="py-16 md:py-24 bg-gradient-to-br from-background to-background/80">
 			<div className="container mx-auto px-4">
@@ -41,26 +33,32 @@ const EventInfoSection = () => {
 					animate={{opacity: 1, y: 0}}
 					transition={{duration: 0.6}}
 				>
-					Información del Evento: {eventDetails.tournamentName}
+					Información del Evento: Open Salta BJJ 2025
 				</motion.h2>
 
 				<div className="grid md:grid-cols-2 gap-8 md:gap-12 mb-16">
-						<InfoItem icon={CalendarDays} title="Fecha" content={eventDetails.date}/>
-						<InfoItem icon={MapPin} title="Lugar" content={eventDetails.location}/>
-						<motion.div
-							className="md:col-span-2 flex items-start space-x-4 p-6 bg-card/60 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-primary/30 transition-shadow duration-300"
-							whileHover="hover"
-							whileTap="tap"
-						>
-							<motion.div variants={iconVariants} className="text-primary">
-								<Info size={32}/>
-							</motion.div>
-							<div>
-								<h3 className="text-xl font-semibold text-primary mb-1">Descripción del Torneo</h3>
-								<p className="text-muted-foreground leading-relaxed">{eventDetails.description}</p>
-							</div>
+					<InfoItem icon={CalendarDays} title="Fecha" content="28 de Junio de 2025"/>
+					<a href="https://maps.app.goo.gl/FA8Ro6Ff2TymydHD9" target="_blank" rel="noreferrer">
+						<InfoItem icon={MapPin} title="Lugar" content="Complejo Nicolás Vitale, Barrio El Tribuno, Salta Capital"/>
+					</a>
+					<motion.div
+						className="md:col-span-2 flex items-start space-x-4 p-6 bg-card/60 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-primary/30 transition-shadow duration-300"
+						whileHover="hover"
+						whileTap="tap"
+					>
+						<motion.div variants={iconVariants} className="text-primary">
+							<Info size={32}/>
 						</motion.div>
-					</div>
+						<div>
+							<h3 className="text-xl font-semibold text-primary mb-1">Descripción del torneo</h3>
+							<p className="text-muted-foreground leading-relaxed">
+								¡Prepárate para el torneo de Jiu-Jitsu más esperado del Norte Argentino! Pura adrenalina,
+								técnica y camaradería. Contaremos con categorías para todas las edades y niveles de experiencia, desde
+								cinturones blancos hasta los más experimentados cinturones negros.
+							</p>
+						</div>
+					</motion.div>
+				</div>
 
 				{/*<motion.div
 					initial={{opacity: 0, y: 20}}
