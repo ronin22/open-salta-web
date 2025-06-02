@@ -3,6 +3,7 @@ import HeroSection from '@/components/home/HeroSection';
 import RegistrationSection from "@/components/home/RegistrationSection";
 import EventInfoSection from "@/components/home/EventInfoSection";
 import SponsorsSection from "@/components/home/SponsorsSection";
+import GallerySection from "@/components/home/GallerySection.jsx";
 
 const HomePage = () => {
 
@@ -12,7 +13,7 @@ const HomePage = () => {
       <RegistrationSection />
       <EventInfoSection  />
       <SponsorsSection  />
-      {/*<GallerySection />*/}
+      <GallerySection />
     </div>
   );
 };
