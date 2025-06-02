@@ -1,233 +1,157 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useToast } from '@/components/ui/use-toast';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Eye, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Users, Shield, HeartHandshake as Handshake, Camera, FileImage as LucideImage, Landmark } from 'lucide-react'; // Added Landmark
 import { motion } from 'framer-motion';
+import RegistrationsTable from '@/components/admin/RegistrationsTable';
+import SponsorsManager from '@/components/admin/SponsorsManager';
+import GalleryManager from '@/components/admin/GalleryManager';
+import PaymentInstructionsManager from '@/components/admin/PaymentInstructionsManager'; // New import
 
 const AdminRegistrationsPage = () => {
-  const [adultRegistrations, setAdultRegistrations] = useState([]);
-  const [minorRegistrations, setMinorRegistrations] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('adults');
+  
+  const [adultsRegistrations, setAdultsRegistrations] = useState([]);
+  const [minorsRegistrations, setMinorsRegistrations] = useState([]);
+  const [sponsors, setSponsors] = useState([]);
+  const [galleryItems, setGalleryItems] = useState([]);
+  const [paymentInstructions, setPaymentInstructions] = useState([]); // New state
+
+  const [loading, setLoading] = useState({
+    adults: false,
+    minors: false,
+    sponsors: false,
+    gallery: false,
+    paymentInstructions: false, // New loading state
+  });
+
+  const fetchData = useCallback(async (type) => {
+    setLoading(prev => ({ ...prev, [type]: true }));
+    let query;
+    switch (type) {
+      case 'adults':
+        query = supabase.from('adults_registrations').select('*').order('created_at', { ascending: false });
+        break;
+      case 'minors':
+        query = supabase.from('minors_registrations').select('*').order('created_at', { ascending: false });
+        break;
+      case 'sponsors':
+        query = supabase.from('sponsors').select('*').order('display_order', { ascending: true });
+        break;
+      case 'gallery':
+        query = supabase.from('gallery_items').select('*').order('display_order', { ascending: true });
+        break;
+      case 'paymentInstructions': // New case
+        query = supabase.from('payment_instructions').select('*').order('display_order', { ascending: true });
+        break;
+      default:
+        setLoading(prev => ({ ...prev, [type]: false }));
+        return;
+    }
+
+    try {
+      const { data, error } = await query;
+      if (error) throw error;
+      
+      switch (type) {
+        case 'adults': setAdultsRegistrations(data || []); break;
+        case 'minors': setMinorsRegistrations(data || []); break;
+        case 'sponsors': setSponsors(data || []); break;
+        case 'gallery': setGalleryItems(data || []); break;
+        case 'paymentInstructions': setPaymentInstructions(data || []); break; // Set new state
+      }
+    } catch (error) {
+      toast({ title: `Error al cargar ${type.replace(/([A-Z])/g, ' $1').toLowerCase()}`, description: error.message, variant: 'destructive' });
+      console.error(`Error fetching ${type}:`, error);
+    } finally {
+      setLoading(prev => ({ ...prev, [type]: false }));
+    }
+  }, [toast]);
 
   useEffect(() => {
-    const fetchRegistrations = async () => {
-      setLoading(true);
-      try {
-        const { data: adultsData, error: adultsError } = await supabase
-          .from('adults_registrations')
-          .select('*')
-          .order('created_at', { ascending: false });
+    fetchData('adults');
+    fetchData('minors');
+    fetchData('sponsors');
+    fetchData('gallery');
+    fetchData('paymentInstructions'); // Fetch new data
+  }, [fetchData]);
 
-        if (adultsError) throw adultsError;
-        setAdultRegistrations(adultsData || []);
-
-        const { data: minorsData, error: minorsError } = await supabase
-          .from('minors_registrations')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (minorsError) throw minorsError;
-        setMinorRegistrations(minorsData || []);
-
-      } catch (error) {
-        console.error("Error fetching registrations:", error);
-        toast({
-          title: "Error al cargar inscripciones",
-          description: error.message,
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRegistrations();
-  }, [toast]);
-  
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const getStatusBadgeVariant = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'pending': return 'yellow';
-      case 'approved':
-      case 'confirmado': return 'green';
-      case 'rejected': return 'red';
-      default: return 'secondary';
-    }
-  };
-
-  const renderFileLink = (url, label) => {
-    if (!url) return <span className="text-muted-foreground/70 text-xs">No {label}</span>;
-    return (
-      <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-xs flex items-center">
-        <Eye size={14} className="mr-1" /> Ver {label}
-      </a>
-    );
-  };
-  
-  const exportToCSV = (data, filename) => {
-    if (!data || data.length === 0) {
-      toast({ title: "Sin datos", description: "No hay datos para exportar.", variant: "default" });
-      return;
-    }
-    const header = Object.keys(data[0]).join(',');
-    const rows = data.map(row => Object.values(row).map(value => `"${String(value || '').replace(/"/g, '""')}"`).join(','));
-    const csvContent = "data:text/csv;charset=utf-8," + [header, ...rows].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${filename}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    toast({ title: "Exportado", description: `${filename}.csv descargado.`, variant: "default" });
-  };
-
-
-  const commonColumnsAdults = [
-    { header: "Nombre", accessor: row => `${row.first_name} ${row.last_name}` },
-    { header: "Email", accessor: row => row.email },
-    { header: "Categoría Peso", accessor: row => row.weight_category },
-    { header: "Cinturón", accessor: row => row.belt_rank },
-    { header: "Academia", accessor: row => row.academy === "Otra" ? row.other_academy : row.academy },
-    { header: "F. Inscripción", accessor: row => formatDate(row.created_at) },
-    { header: "Estado", accessor: row => <Badge variant={getStatusBadgeVariant(row.registration_status)}>{row.registration_status || 'N/A'}</Badge> },
-  ];
-
-  const commonColumnsMinors = [
-    { header: "Nombre Menor", accessor: row => `${row.child_first_name} ${row.child_last_name}` },
-    { header: "Email Tutor", accessor: row => row.parent_email },
-    { header: "Categoría Peso", accessor: row => row.child_weight_category },
-    { header: "Cinturón", accessor: row => row.child_belt_rank },
-    { header: "Academia", accessor: row => row.child_academy === "Otra" ? row.child_other_academy : row.child_academy },
-    { header: "F. Inscripción", accessor: row => formatDate(row.created_at) },
-    { header: "Estado", accessor: row => <Badge variant={getStatusBadgeVariant(row.registration_status)}>{row.registration_status || 'N/A'}</Badge> },
-  ];
-
-  const documentColumnsAdults = [
-    { header: "Apto Médico", accessor: row => renderFileLink(row.medical_cert_url, 'Apto') },
-    { header: "Pago", accessor: row => renderFileLink(row.payment_proof_url, 'Pago') },
-    { header: "DNI", accessor: row => renderFileLink(row.dni_photo_url, 'DNI') },
-  ];
-
-  const documentColumnsMinors = [
-    { header: "Apto Médico", accessor: row => renderFileLink(row.medical_cert_url, 'Apto') },
-    { header: "Pago", accessor: row => renderFileLink(row.payment_proof_url, 'Pago') },
-    { header: "DNI Menor", accessor: row => renderFileLink(row.dni_photo_child_url, 'DNI Menor') },
-    { header: "DNI Tutor", accessor: row => renderFileLink(row.dni_photo_parent_url, 'DNI Tutor') },
-  ];
-  
-  const adultsTableColumns = [...commonColumnsAdults, ...documentColumnsAdults];
-  const minorsTableColumns = [...commonColumnsMinors, ...documentColumnsMinors];
-
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
-        <p className="ml-4 text-lg">Cargando inscripciones...</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="container mx-auto py-8">
-      <motion.h1 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-4xl font-bold mb-8 gradient-text text-center"
-      >
-        Panel de Administrador de Inscripciones
-      </motion.h1>
-
-      <Tabs defaultValue="adults" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:max-w-md mx-auto mb-6">
-          <TabsTrigger value="adults">Adultos ({adultRegistrations.length})</TabsTrigger>
-          <TabsTrigger value="minors">Menores ({minorRegistrations.length})</TabsTrigger>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto py-8 px-4 md:px-0"
+    >
+      <h1 className="text-4xl font-bold mb-8 gradient-text text-center">Panel de Administración</h1>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5 mb-6 bg-background/70 backdrop-blur-md">
+          <TabsTrigger value="adults" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Shield className="mr-2 h-5 w-5" /> Inscripciones Adultos
+          </TabsTrigger>
+          <TabsTrigger value="minors" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Users className="mr-2 h-5 w-5" /> Inscripciones Menores
+          </TabsTrigger>
+          <TabsTrigger value="sponsors" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Handshake className="mr-2 h-5 w-5" /> Patrocinadores
+          </TabsTrigger>
+          <TabsTrigger value="gallery" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Camera className="mr-2 h-5 w-5" /> Galería
+          </TabsTrigger>
+          <TabsTrigger value="paymentInstructions" className="py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Landmark className="mr-2 h-5 w-5" /> Datos de Transferencia
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="adults">
-          <Card className="glassmorphism">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Inscripciones de Adultos</CardTitle>
-                  <CardDescription>Lista de todos los adultos inscritos en el torneo.</CardDescription>
-                </div>
-                <Button onClick={() => exportToCSV(adultRegistrations, 'inscripciones_adultos')} variant="outline" size="sm">
-                  <Download size={16} className="mr-2" /> Exportar CSV
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {adultRegistrations.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {adultsTableColumns.map(col => <TableHead key={col.header}>{col.header}</TableHead>)}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {adultRegistrations.map((reg) => (
-                      <TableRow key={reg.id}>
-                        {adultsTableColumns.map(col => <TableCell key={col.header}>{col.accessor(reg)}</TableCell>)}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <p className="text-center text-muted-foreground py-8">No hay inscripciones de adultos todavía.</p>
-              )}
-            </CardContent>
-          </Card>
+
+        <TabsContent value="adults" className="p-4 bg-card rounded-xl shadow-lg">
+          {loading.adults ? <p className="text-center py-4">Cargando inscripciones de adultos...</p> : <RegistrationsTable data={adultsRegistrations} type="adults" />}
         </TabsContent>
-        <TabsContent value="minors">
-          <Card className="glassmorphism">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle>Inscripciones de Menores</CardTitle>
-                  <CardDescription>Lista de todos los menores inscritos en el torneo.</CardDescription>
-                </div>
-                 <Button onClick={() => exportToCSV(minorRegistrations, 'inscripciones_menores')} variant="outline" size="sm">
-                  <Download size={16} className="mr-2" /> Exportar CSV
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {minorRegistrations.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {minorsTableColumns.map(col => <TableHead key={col.header}>{col.header}</TableHead>)}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {minorRegistrations.map((reg) => (
-                      <TableRow key={reg.id}>
-                        {minorsTableColumns.map(col => <TableCell key={col.header}>{col.accessor(reg)}</TableCell>)}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              ) : (
-                <p className="text-center text-muted-foreground py-8">No hay inscripciones de menores todavía.</p>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent value="minors" className="p-4 bg-card rounded-xl shadow-lg">
+          {loading.minors ? <p className="text-center py-4">Cargando inscripciones de menores...</p> : <RegistrationsTable data={minorsRegistrations} type="minors" />}
+        </TabsContent>
+        <TabsContent value="sponsors" className="p-4 bg-card rounded-xl shadow-lg">
+          <SponsorsManager 
+            initialSponsors={sponsors} 
+            loading={loading.sponsors} 
+            fetchSponsors={() => fetchData('sponsors')} 
+          />
+        </TabsContent>
+        <TabsContent value="gallery" className="p-4 bg-card rounded-xl shadow-lg">
+          <GalleryManager 
+            initialGalleryItems={galleryItems} 
+            loading={loading.gallery}
+            fetchGalleryItems={() => fetchData('gallery')}
+          />
+        </TabsContent>
+        <TabsContent value="paymentInstructions" className="p-4 bg-card rounded-xl shadow-lg"> {/* New Tab Content */}
+          <PaymentInstructionsManager
+            initialInstructions={paymentInstructions}
+            loading={loading.paymentInstructions}
+            fetchInstructions={() => fetchData('paymentInstructions')}
+          />
         </TabsContent>
       </Tabs>
-    </div>
+
+      <div className="mt-8 p-6 bg-blue-900/20 border border-blue-700 rounded-lg shadow-md">
+        <h3 className="text-xl font-semibold text-blue-300 mb-3 flex items-center">
+          <LucideImage className="mr-2 h-5 w-5" /> Instrucciones para Imágenes/Logos:
+        </h3>
+        <ol className="list-decimal list-inside text-blue-200 space-y-1 text-sm">
+          <li>Accede a tu proyecto en <a href="https://supabase.com/" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-100">Supabase</a>.</li>
+          <li>En el menú lateral, ve a "Storage".</li>
+          <li>Crea un nuevo bucket (o usa uno existente, ej: "public_assets"). Asegúrate de que sea público si quieres acceso directo.</li>
+          <li>Sube tu archivo (logo, foto de galería) al bucket.</li>
+          <li>Una vez subido, selecciona el archivo y busca la opción "Get URL" o "Copy URL".</li>
+          <li>Pega esa URL en el campo correspondiente del formulario ("URL del Logo", "URL de Imagen") en esta página de administración.</li>
+        </ol>
+      </div>
+
+    </motion.div>
   );
 };
 

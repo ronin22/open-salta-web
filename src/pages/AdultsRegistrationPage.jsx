@@ -1,33 +1,109 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
-import { UserCheck, ShieldPlus, VenetianMask, Award, UploadCloud, Briefcase, Banknote, Info } from 'lucide-react';
+import { UserCheck, ShieldPlus, VenetianMask, UploadCloud, Briefcase, Banknote, Info, CalendarClock, Copy, Mail } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import AdultPersonalInfoSection from '@/components/adults-form/AdultPersonalInfoSection';
 import AdultCompetitionDataSection from '@/components/adults-form/AdultCompetitionDataSection';
 import AdultDocumentUploadSection from '@/components/adults-form/AdultDocumentUploadSection';
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 
-const PaymentInfoSection = ({ paymentDetails }) => (
-  <div className="space-y-2 p-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg border border-primary/30 shadow-lg">
-    <h3 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2 flex items-center">
-      <Banknote className="h-5 w-5 mr-2 text-primary" /> {paymentDetails.payment_details_title || "Datos para la Transferencia"}
-    </h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-      <p className="text-muted-foreground"><strong className="text-foreground">Alias:</strong> {paymentDetails.payment_alias}</p>
-      <p className="text-muted-foreground"><strong className="text-foreground">CBU:</strong> {paymentDetails.payment_cbu}</p>
-      <p className="text-muted-foreground"><strong className="text-foreground">Banco:</strong> {paymentDetails.payment_bank}</p>
-      <p className="text-muted-foreground"><strong className="text-foreground">Titular:</strong> {paymentDetails.payment_holder}</p>
-      <p className="text-muted-foreground"><strong className="text-foreground">CUIL:</strong> {paymentDetails.payment_cuil}</p>
-    </div>
-     <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-md text-yellow-200 text-xs flex items-start">
-      <Info size={16} className="mr-2 mt-0.5 flex-shrink-0 text-yellow-400" />
-      <span>Recuerda adjuntar el comprobante de pago más abajo. La inscripción no será válida sin el comprobante.</span>
-    </div>
-  </div>
-);
+const PaymentInfoSection = ({ paymentDetails }) => {
+  const { toast } = useToast();
 
+  const copyToClipboard = (text, fieldName) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({
+        title: "Copiado",
+        description: `${fieldName} copiado al portapapeles.`,
+      });
+    }).catch(err => {
+      console.error('Error al copiar: ', err);
+      toast({
+        title: "Error",
+        description: `No se pudo copiar ${fieldName}.`,
+        variant: "destructive",
+      });
+    });
+  };
+  
+  return (
+    <div className="space-y-6 p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900/50 rounded-xl border border-primary/40 shadow-2xl">
+      <h3 className="text-2xl font-bold text-primary mb-4 border-b-2 border-primary/30 pb-3 flex items-center">
+        <Banknote className="h-6 w-6 mr-3 text-primary" /> {paymentDetails.payment_details_title || "Datos para la Transferencia"}
+      </h3>
+      
+      {paymentDetails.payment_value_tiers_v2 && paymentDetails.payment_value_tiers_v2.length > 0 && (
+        <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg shadow-md">
+          <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
+            <CalendarClock size={20} className="mr-2" /> Valores de Inscripción:
+          </h4>
+          <ul className="space-y-1.5 text-sm text-foreground/90">
+            {paymentDetails.payment_value_tiers_v2.map((tier, index) => (
+              <li key={index} className="flex justify-between items-center">
+                <span><span className="font-semibold">{tier.price}</span> ({tier.period})</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <Table className="w-full">
+        <TableBody>
+          {[
+            { label: "Alias", value: paymentDetails.payment_alias },
+            { label: "CBU", value: paymentDetails.payment_cbu },
+            { label: "Banco", value: paymentDetails.payment_bank },
+            { label: "Titular", value: paymentDetails.payment_holder },
+            { label: "CUIL", value: paymentDetails.payment_cuil },
+          ].map((item, index) => (
+            item.value && (
+              <TableRow key={index} className="border-b border-slate-700 hover:bg-slate-700/30">
+                <TableCell className="font-semibold text-muted-foreground w-1/3 py-3 px-4">{item.label}:</TableCell>
+                <TableCell className="text-foreground py-3 px-4 flex justify-between items-center">
+                  <span>{item.value}</span>
+                  {(item.label === "Alias" || item.label === "CBU") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(item.value, item.label)}
+                      className="p-1 h-auto text-primary hover:text-primary/80"
+                      aria-label={`Copiar ${item.label}`}
+                    >
+                      <Copy size={16} />
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            )
+          ))}
+        </TableBody>
+      </Table>
+
+      <div className="mt-6 p-4 bg-yellow-600/10 border border-yellow-500/40 rounded-lg text-yellow-300 text-sm flex items-start shadow">
+        <Info size={20} className="mr-3 mt-0.5 flex-shrink-0 text-yellow-400" />
+        <span>Recuerda adjuntar el comprobante de pago más abajo. La inscripción no será válida sin el comprobante.</span>
+      </div>
+    </div>
+  );
+};
+
+async function generateRegistrationId(typePrefix) {
+  const { data, error } = await supabase
+    .from(typePrefix === 'ADULTO' ? 'adults_registrations' : 'minors_registrations')
+    .select('id', { count: 'exact', head: true });
+
+  if (error) {
+    console.error('Error fetching count for ID generation:', error);
+    // Fallback or throw error
+    return `${typePrefix}-${Date.now().toString().slice(-5)}`; 
+  }
+  const count = data ? (await supabase.from(typePrefix === 'ADULTO' ? 'adults_registrations' : 'minors_registrations').select('id', { count: 'exact' })).count : 0;
+  const nextId = (count || 0) + 1;
+  return `TORNEO-${typePrefix}-${String(nextId).padStart(5, '0')}`;
+}
 
 const AdultsRegistrationPage = () => {
   const { toast } = useToast();
@@ -62,6 +138,35 @@ const AdultsRegistrationPage = () => {
   const [paymentDetails, setPaymentDetails] = useState({});
   const [adultsWeightChartUrl, setAdultsWeightChartUrl] = useState('');
   const [loadingOptions, setLoadingOptions] = useState(true);
+  const [tournamentName, setTournamentName] = useState("Torneo BJJ");
+
+  const fetchSiteContent = useCallback(async (keys, setterFunction) => {
+    try {
+      const { data, error } = await supabase
+        .from('site_content')
+        .select('element_key, content_value')
+        .in('element_key', keys);
+
+      if (error) throw error;
+
+      const content = data.reduce((acc, item) => {
+        if (item.content_value && item.content_value.value !== undefined) {
+          acc[item.element_key] = item.content_value.value;
+        }
+        return acc;
+      }, {});
+      setterFunction(content);
+      if (content.tournament_name) {
+        setTournamentName(content.tournament_name);
+      }
+      return content;
+    } catch (error) {
+      console.error("Error fetching site content:", error);
+      toast({ title: "Error de Carga", description: `No se pudieron cargar algunos datos del sitio. ${error.message}`, variant: "destructive" });
+      return {};
+    }
+  }, [toast]);
+
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -82,12 +187,6 @@ const AdultsRegistrationPage = () => {
         const ageCategoriesData = await fetchWithHandling(supabase.from('age_categories_options').select('name').eq('type', 'adult').order('display_order'), 'categorías de edad');
         const weightCategoriesData = await fetchWithHandling(supabase.from('weight_categories_options').select('name').order('display_order'), 'categorías de peso');
         
-        const siteContentData = await fetchWithHandling(
-          supabase.from('site_content').select('element_key, content_value')
-            .in('element_key', ['payment_details_title', 'payment_alias', 'payment_cbu', 'payment_bank', 'payment_holder', 'payment_cuil', 'adults_weight_chart_image_url_v3']),
-          'detalles de pago y URL de imagen'
-        );
-        
         setOptions({
           genders: ["Masculino", "Femenino"],
           academies: academiesData.map(opt => opt.name),
@@ -95,15 +194,11 @@ const AdultsRegistrationPage = () => {
           ageCategories: ageCategoriesData.map(opt => opt.name),
           weightCategories: weightCategoriesData.map(opt => opt.name),
         });
+        
+        const paymentContentKeys = ['payment_details_title', 'payment_alias', 'payment_cbu', 'payment_bank', 'payment_holder', 'payment_cuil', 'adults_weight_chart_image_url_v3', 'payment_value_tiers_v2', 'tournament_name'];
+        const fetchedPaymentDetails = await fetchSiteContent(paymentContentKeys, setPaymentDetails);
+        setAdultsWeightChartUrl(fetchedPaymentDetails.adults_weight_chart_image_url_v3 || '');
 
-        const content = siteContentData.reduce((acc, item) => {
-          if (item.content_value && item.content_value.value) {
-            acc[item.element_key] = item.content_value.value;
-          }
-          return acc;
-        }, {});
-        setPaymentDetails(content);
-        setAdultsWeightChartUrl(content.adults_weight_chart_image_url_v3 || '');
 
       } catch (error) {
         console.error("General error fetching form options/content for adults:", error);
@@ -113,7 +208,7 @@ const AdultsRegistrationPage = () => {
       }
     };
     fetchInitialData();
-  }, [toast]);
+  }, [toast, fetchSiteContent]);
 
 
   useEffect(() => {
@@ -191,14 +286,16 @@ const AdultsRegistrationPage = () => {
     }
 
     try {
-      const paymentProofUrl = await uploadFile(formData.paymentProof, 'documents', 'adults/payment_proofs');
+      const registration_id = await generateRegistrationId('ADULTO');
+
+      const paymentProofUrl = await uploadFile(formData.paymentProof, 'documents', `adults/${registration_id}/payment_proofs`);
       let medicalCertUrl = null;
       if (formData.medicalCert) {
-        medicalCertUrl = await uploadFile(formData.medicalCert, 'documents', 'adults/medical_certs');
+        medicalCertUrl = await uploadFile(formData.medicalCert, 'documents', `adults/${registration_id}/medical_certs`);
         if (!medicalCertUrl && formData.medicalCert) { 
-             toast({ title: "Error de Subida de Archivos", description: "No se pudo subir el apto médico. Intenta de nuevo o envíalo más tarde.", variant: "destructive" });
-             setIsSubmitting(false);
-             return;
+            toast({ title: "Error de Subida de Archivos", description: "No se pudo subir el apto médico. Intenta de nuevo o envíalo más tarde.", variant: "destructive" });
+            setIsSubmitting(false);
+            return;
         }
       }
 
@@ -209,6 +306,7 @@ const AdultsRegistrationPage = () => {
       }
       
       const registrationData = {
+        registration_id,
         first_name: formData.firstName,
         last_name: formData.lastName,
         dni: formData.dni,
@@ -239,7 +337,34 @@ const AdultsRegistrationPage = () => {
         return;
       }
 
-      toast({ title: "Inscripción Enviada (Adultos)", description: "Tus datos han sido registrados. Recibirás una confirmación pronto.", variant: "default" });
+      // Send email
+      const emailPayload = {
+        recipientEmail: formData.email,
+        registrationId: registration_id,
+        fullName: `${formData.firstName} ${formData.lastName}`,
+        dni: formData.dni,
+        academy: formData.academy === 'Otra' ? formData.otherAcademy : formData.academy,
+        category: formData.ageCategory,
+        weight: formData.weightCategory,
+        beltRank: formData.beltRank,
+        professor: formData.professorName,
+        tournamentName: tournamentName,
+        type: 'adult',
+      };
+      
+      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-registration-email', {
+          body: JSON.stringify(emailPayload),
+      });
+
+      if (emailError) {
+          console.error('Error sending confirmation email:', emailError);
+          toast({ title: "Correo no Enviado", description: "Se registró tu inscripción, pero hubo un problema al enviar el correo de confirmación.", variant: "destructive" });
+      } else {
+          console.log('Confirmation email sent:', emailData);
+          toast({ title: "Correo Enviado", description: "Se ha enviado un correo de confirmación con los detalles de tu inscripción.", icon: <Mail className="h-5 w-5" /> });
+      }
+
+      toast({ title: "Inscripción Enviada (Adultos)", description: `Tu inscripción ha sido registrada con el ID: ${registration_id}. Revisa tu correo para la confirmación.`, variant: "default" });
       setFormData({
         firstName: '', lastName: '', dni: '', email: '', phoneContact: '', dob: '', age: '', gender: '',
         academy: '', otherAcademy: '', professorName: '', beltRank: '', ageCategory: '', weightCategory: '',
