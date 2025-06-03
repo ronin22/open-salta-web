@@ -1,11 +1,12 @@
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from '@/pages/HomePage';
 import AffidavitPage from '@/pages/AffidavitPage';
 import MinorsRegistrationPage from '@/pages/MinorsRegistrationPage';
 import AdultsRegistrationPage from '@/pages/AdultsRegistrationPage';
 import AdminRegistrationsPage from '@/pages/AdminRegistrationsPage';
+import AdminLoginPage from '@/pages/AdminLoginPage'; 
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -29,6 +30,14 @@ const pageTransition = {
   type: 'tween',
   ease: 'anticipate',
   duration: 0.5,
+};
+
+const ProtectedRoute = ({ children }) => {
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  if (!isAdmin) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  return children;
 };
 
 function App() {
@@ -97,7 +106,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/registrations"
+              path="/admin/login"
               element={
                 <motion.div
                   initial="initial"
@@ -106,8 +115,24 @@ function App() {
                   variants={pageVariants}
                   transition={pageTransition}
                 >
-                  <AdminRegistrationsPage />
+                  <AdminLoginPage />
                 </motion.div>
+              }
+            />
+            <Route
+              path="/admin/registrations"
+              element={
+                <ProtectedRoute>
+                  <motion.div
+                    initial="initial"
+                    animate="in"
+                    exit="out"
+                    variants={pageVariants}
+                    transition={pageTransition}
+                  >
+                    <AdminRegistrationsPage />
+                  </motion.div>
+                </ProtectedRoute>
               }
             />
           </Routes>
