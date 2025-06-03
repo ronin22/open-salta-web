@@ -9,86 +9,7 @@ import AdultPersonalInfoSection from '@/components/adults-form/AdultPersonalInfo
 import AdultCompetitionDataSection from '@/components/adults-form/AdultCompetitionDataSection';
 import AdultDocumentUploadSection from '@/components/adults-form/AdultDocumentUploadSection';
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-
-const PaymentInfoSection = ({ paymentDetails }) => {
-  const { toast } = useToast();
-
-  const copyToClipboard = (text, fieldName) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast({
-        title: "Copiado",
-        description: `${fieldName} copiado al portapapeles.`,
-      });
-    }).catch(err => {
-      console.error('Error al copiar: ', err);
-      toast({
-        title: "Error",
-        description: `No se pudo copiar ${fieldName}.`,
-        variant: "destructive",
-      });
-    });
-  };
-  
-  return (
-    <div className="space-y-6 p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900/50 rounded-xl border border-primary/40 shadow-2xl">
-      <h3 className="text-2xl font-bold text-primary mb-4 border-b-2 border-primary/30 pb-3 flex items-center">
-        <Banknote className="h-6 w-6 mr-3 text-primary" /> {paymentDetails.payment_details_title || "Datos para la Transferencia"}
-      </h3>
-      
-      {paymentDetails.payment_value_tiers_v2 && paymentDetails.payment_value_tiers_v2.length > 0 && (
-        <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg shadow-md">
-          <h4 className="text-lg font-semibold text-primary mb-3 flex items-center">
-            <CalendarClock size={20} className="mr-2" /> Valores de Inscripción:
-          </h4>
-          <ul className="space-y-1.5 text-sm text-foreground/90">
-            {paymentDetails.payment_value_tiers_v2.map((tier, index) => (
-              <li key={index} className="flex justify-between items-center">
-                <span><span className="font-semibold">{tier.price}</span> ({tier.period})</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      <Table className="w-full">
-        <TableBody>
-          {[
-            { label: "Alias", value: paymentDetails.payment_alias },
-            { label: "CBU", value: paymentDetails.payment_cbu },
-            { label: "Banco", value: paymentDetails.payment_bank },
-            { label: "Titular", value: paymentDetails.payment_holder },
-            { label: "CUIL", value: paymentDetails.payment_cuil },
-          ].map((item, index) => (
-            item.value && (
-              <TableRow key={index} className="border-b border-slate-700 hover:bg-slate-700/30">
-                <TableCell className="font-semibold text-muted-foreground w-1/3 py-3 px-4">{item.label}:</TableCell>
-                <TableCell className="text-foreground py-3 px-4 flex justify-between items-center">
-                  <span>{item.value}</span>
-                  {(item.label === "Alias" || item.label === "CBU") && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyToClipboard(item.value, item.label)}
-                      className="p-1 h-auto text-primary hover:text-primary/80"
-                      aria-label={`Copiar ${item.label}`}
-                    >
-                      <Copy size={16} />
-                    </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            )
-          ))}
-        </TableBody>
-      </Table>
-
-      <div className="mt-6 p-4 bg-yellow-600/10 border border-yellow-500/40 rounded-lg text-yellow-300 text-sm flex items-start shadow">
-        <Info size={20} className="mr-3 mt-0.5 flex-shrink-0 text-yellow-400" />
-        <span>Recuerda adjuntar el comprobante de pago más abajo. La inscripción no será válida sin el comprobante.</span>
-      </div>
-    </div>
-  );
-};
+import PaymentInfoSection from "@/components/payments/PaymentInfoSection.jsx";
 
 async function generateRegistrationId(typePrefix) {
   const { data, error } = await supabase
@@ -311,8 +232,8 @@ const AdultsRegistrationPage = () => {
         last_name: formData.lastName,
         dni: formData.dni,
         email: formData.email,
-        phone_contact: formData.phoneContact,
-        dob: formData.dob,
+        phone: formData.phoneContact,
+        birth_date: formData.dob,
         age: parseInt(formData.age, 10) || null,
         gender: formData.gender,
         academy: formData.academy,
@@ -434,7 +355,7 @@ const AdultsRegistrationPage = () => {
               />
             </div>
             
-            <PaymentInfoSection paymentDetails={paymentDetails} />
+            <PaymentInfoSection />
 
             <div className="space-y-2">
               <h3 className="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2 flex items-center">
